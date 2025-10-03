@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistika - Barcode Tizimi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card.primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .stat-card.danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .progress-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .progress-item {
+            margin-bottom: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-completed {
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+        
+        .progress-pending {
+            background: linear-gradient(90deg, #dc3545, #fd7e14);
+        }
+        
+        .chart-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 18px;
+            font-weight: 600;
+            flex-direction: column;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background-color: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .nav-btn:hover {
+            background-color: #1a68e8;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.secondary {
+            background-color: #6c757d;
+        }
+        
+        .nav-btn.secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .info-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .info-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .info-list {
+            list-style: none;
+        }
+        
+        .info-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+        }
+        
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .completion-rate {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Tizim Statistikasi</h1>
+            <p>Barcode tizimingizning umumiy ko'rsatkichlari va ma'lumotlari</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-value">{{ total_barcodes }}</div>
+                <div class="stat-label">Jami Barcode'lar</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value">{{ completed_barcodes }}</div>
+                <div class="stat-label">Bajarilgan</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value">{{ pending_barcodes }}</div>
+                <div class="stat-label">Bajarilmagan</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value" id="completionRate">
+                    {% if total_barcodes > 0 %}
+                        {{ completed_barcodes }}/{{ total_barcodes }}
+                    {% else %}
+                        0/0
+                    {% endif %}
+                </div>
+                <div class="stat-label">Bajarilish Darajasi</div>
+                <div class="completion-rate">
+                    {% if total_barcodes > 0 %}
+                        {{ completion_percentage|floatformat:1 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-section">
+            <h3 style="margin-bottom: 20px; color: #333;">📊 Bajarilish Darajasi</h3>
+            
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Bajarilgan</span>
+                    <span>{{ completed_barcodes }} / {{ total_barcodes }}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-completed" 
+                         id="completedProgress"
+                         style="width: 0%">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Bajarilmagan</span>
+                    <span>{{ pending_barcodes }} / {{ total_barcodes }}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-pending" 
+                         id="pendingProgress"
+                         style="width: 0%">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3 style="margin-bottom: 15px; color: #333;">📈 Faollik Grafigi</h3>
+            <div class="chart-placeholder">
+                📊 Statistik Ma'lumotlar
+                <br>
+                <small>Jami: {{ total_barcodes }} ta | Bajarilgan: {{ completed_barcodes }} ta | Bajarilmagan: {{ pending_barcodes }} ta</small>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3 class="info-title">ℹ️ Tizim Ma'lumotlari</h3>
+            <ul class="info-list">
+                <li>✅ Barcode'lar bazasida jami {{ total_barcodes }} ta yozuv mavjud</li>
+                <li>🟢 Bajarilgan barcode'lar: {{ completed_barcodes }} ta</li>
+                <li>🔴 Bajarilmagan barcode'lar: {{ pending_barcodes }} ta</li>
+                <li>📊 Bajarilish darajasi: 
+                    {% if total_barcodes > 0 %}
+                        {{ completion_percentage|floatformat:1 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </li>
+                <li>📱 Tizim mobil qurilmalar bilan moslashtirilgan</li>
+                <li>🔒 Ma'lumotlar bazasida avtomatik zaxiralash mavjud</li>
+            </ul>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="{% url 'kassa' %}" class="nav-btn">
+                💰 Kassa Sahifasi
+            </a>
+            <a href="{% url 'barcode_list' %}" class="nav-btn">
+                📊 Barcha Barcode'lar
+            </a>
+            <a href="/admin/" class="nav-btn secondary">
+                ⚙️ Admin Panel
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Progress barlarni hisoblash va animatsiya qilish
+            const totalBarcodes = {{ total_barcodes }};
+            const completedBarcodes = {{ completed_barcodes }};
+            const pendingBarcodes = {{ pending_barcodes }};
+            
+            function calculateAndAnimateProgress() {
+                if (totalBarcodes > 0) {
+                    const completedPercentage = (completedBarcodes / totalBarcodes) * 100;
+                    const pendingPercentage = (pendingBarcodes / totalBarcodes) * 100;
+                    
+                    // Progress barlarni animatsiya qilish
+                    setTimeout(() => {
+                        document.getElementById('completedProgress').style.width = completedPercentage + '%';
+                        document.getElementById('pendingProgress').style.width = pendingPercentage + '%';
+                    }, 100);
+                } else {
+                    // Agar barcode'lar bo'lmasa
+                    document.getElementById('completedProgress').style.width = '0%';
+                    document.getElementById('pendingProgress').style.width = '0%';
+                }
+            }
+            
+            calculateAndAnimateProgress();
+        });
+    </script>
+</body>
+</html>

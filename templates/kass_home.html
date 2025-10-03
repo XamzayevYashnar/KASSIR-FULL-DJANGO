@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kassa - Barcode Tizimi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .kassa-content {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 16px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+            outline: none;
+        }
+        
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .scanner-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .scanner-btn {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .scanner-btn:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2575fc;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            background-color: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .nav-btn:hover {
+            background-color: #1a68e8;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.secondary {
+            background-color: #6c757d;
+        }
+        
+        .nav-btn.secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .recent-barcodes {
+            margin-top: 30px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .barcode-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #dc3545;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .barcode-item.completed {
+            border-left-color: #28a745;
+            background-color: #f8fff9;
+        }
+        
+        .barcode-info {
+            flex-grow: 1;
+        }
+        
+        .barcode-value {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .barcode-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .barcode-status {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .status-pending {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .quick-action-btn {
+            padding: 12px;
+            background-color: white;
+            border: 2px solid #2575fc;
+            border-radius: 8px;
+            color: #2575fc;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .quick-action-btn:hover {
+            background-color: #2575fc;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .typing-indicator {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+            height: 20px;
+        }
+        
+        .auto-submit-notice {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            color: #0066cc;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .barcode-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .barcode-status {
+                align-self: flex-start;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Kassa Tizimi</h1>
+            <p>Barcode'lar orqali mahsulotlarni qo'shing va boshqaring</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {% if 'success' in message.tags %}✅{% endif %}
+                    {% if 'warning' in message.tags %}⚠️{% endif %}
+                    {% if 'error' in message.tags %}❌{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="kassa-content">
+            <form method="post" id="barcodeForm">
+                {% csrf_token %}
+                <div class="input-section">
+                    <div class="form-group">
+                        <label for="barcode">Barcode Raqami</label>
+                        <input type="text" id="barcode" name="barcode" 
+                               placeholder="Barcode ni kiriting yoki skanerlang..." 
+                               required autofocus autocomplete="off"
+                               maxlength="100">
+                    </div>
+                </div>
+            </form>
+            
+            <div class="auto-submit-notice">
+                ⚡ Barcode kiritilgandan so'ng avtomatik ravishda qo'shiladi (3 belgidan keyin)
+            </div>
+            <div class="typing-indicator" id="typingIndicator"></div>
+            
+            <div class="quick-actions">
+                <button type="button" class="quick-action-btn" onclick="generateRandomBarcode()">
+                    🎲 Tasodifiy Barcode
+                </button>
+                <button type="button" class="quick-action-btn" onclick="clearInput()">
+                    🗑️ Tozalash
+                </button>
+                <button type="button" class="quick-action-btn" onclick="focusInput()">
+                    ⌨️ Fokus
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ recent_barcodes|length }}</div>
+                    <div class="stat-label">So'nggi Barcode'lar</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCount">{{ recent_barcodes|length }}</div>
+                    <div class="stat-label">Jami Ko'rsatilgan</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="todayCount">{{ recent_barcodes|length }}</div>
+                    <div class="stat-label">Bugun Qo'shilgan</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recent-barcodes">
+            <h2 class="section-title">📋 So'nggi Qo'shilgan Barcode'lar</h2>
+            <div id="recentBarcodes">
+                {% if recent_barcodes %}
+                    {% for barcode in recent_barcodes %}
+                        <div class="barcode-item {% if barcode.status %}completed{% endif %}">
+                            <div class="barcode-info">
+                                <div class="barcode-value">{{ barcode.value }}</div>
+                                <div class="barcode-time">
+                                    🕒 {{ barcode.created_at|date:"Y-m-d H:i" }}
+                                    {% if barcode.status and barcode.completed_at %}
+                                        <br>✅ {{ barcode.completed_at|date:"Y-m-d H:i" }} da bajarildi
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="barcode-status {% if barcode.status %}status-completed{% else %}status-pending{% endif %}">
+                                {% if barcode.status %}
+                                    ✅ Bajarilgan
+                                {% else %}
+                                    ❌ Bajarilmagan
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>📭 Hali barcode'lar mavjud emas</h3>
+                        <p>Yuqoridagi formadan birinchi barcode'ni qo'shing</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="{% url 'barcode_list' %}" class="nav-btn">
+                📊 Barcha Barcode'lar
+            </a>
+            <a href="{% url 'get_stats' %}" class="nav-btn secondary">
+                📈 Statistika
+            </a>
+            <a href="/admin/" class="nav-btn secondary">
+                ⚙️ Admin Panel
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const barcodeForm = document.getElementById('barcodeForm');
+            const barcodeInput = document.getElementById('barcode');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            let autoSubmitTimer;
+            let lastBarcodeValue = '';
+
+            // Avtomatik submit funksiyasi
+            function setupAutoSubmit() {
+                barcodeInput.addEventListener('input', function() {
+                    const currentValue = this.value.trim();
+                    
+                    // Faqat raqam va harflarga ruxsat berish
+                    this.value = currentValue.replace(/[^a-zA-Z0-9]/g, '');
+                    
+                    // Typing indicator
+                    if (currentValue.length > 0) {
+                        typingIndicator.textContent = `Kiritilmoqda: ${currentValue}`;
+                    } else {
+                        typingIndicator.textContent = '';
+                    }
+                    
+                    // Avvalgi timer'ni tozalash
+                    clearTimeout(autoSubmitTimer);
+                    
+                    // Yangi barcode kiritilganda (3 belgidan keyin)
+                    if (currentValue.length >= 3 && currentValue !== lastBarcodeValue) {
+                        autoSubmitTimer = setTimeout(() => {
+                            if (currentValue.length > 0) {
+                                typingIndicator.textContent = '⏳ Barcode qo\'shilmoqda...';
+                                submitBarcode(currentValue);
+                            }
+                        }, 800); // 0.8 soniya kutadi
+                    }
+                });
+                
+                // Enter tugmasini bloklash - faqat avtomatik submit ishlashi uchun
+                barcodeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // Enter tugmasini bloklash
+                        return false;
+                    }
+                });
+            }
+
+            // Barcode yuborish funksiyasi
+            function submitBarcode(barcodeValue) {
+                if (!barcodeValue || barcodeValue.length < 3) {
+                    typingIndicator.textContent = '❌ Barcode juda qisqa (kamida 3 belgi)';
+                    return;
+                }
+                
+                lastBarcodeValue = barcodeValue;
+                typingIndicator.textContent = '✅ Barcode qo\'shilmoqda...';
+                
+                // Form yuborish
+                barcodeForm.submit();
+            }
+
+            // Inputga fokus qilish
+            barcodeInput.focus();
+            
+            // Dastlabki sozlamalarni ishga tushirish
+            setupAutoSubmit();
+
+            // Barcode muvaffaqiyatli qo'shilgandan so'ng inputni tozalash
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'success' in message.tags %}
+            setTimeout(() => {
+                barcodeInput.value = '';
+                typingIndicator.textContent = '✅ Barcode muvaffaqiyatli qo\'shildi!';
+                setTimeout(() => {
+                    typingIndicator.textContent = '';
+                    barcodeInput.focus();
+                }, 2000);
+            }, 100);
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+        
+        // Tasodifiy barcode yaratish
+        function generateRandomBarcode() {
+            const randomBarcode = Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
+            document.getElementById('barcode').value = randomBarcode;
+            document.getElementById('typingIndicator').textContent = `🎲 Tasodifiy barcode: ${randomBarcode}`;
+            
+            // Avtomatik yuborish
+            setTimeout(() => {
+                document.getElementById('typingIndicator').textContent = '⏳ Barcode qo\'shilmoqda...';
+                document.getElementById('barcodeForm').submit();
+            }, 1000);
+        }
+        
+        // Inputni tozalash
+        function clearInput() {
+            document.getElementById('barcode').value = '';
+            document.getElementById('typingIndicator').textContent = '🗑️ Input tozalandi';
+            document.getElementById('barcode').focus();
+            setTimeout(() => {
+                document.getElementById('typingIndicator').textContent = '';
+            }, 2000);
+        }
+        
+        // Inputga fokus qilish
+        function focusInput() {
+            document.getElementById('barcode').focus();
+            document.getElementById('typingIndicator').textContent = '⌨️ Inputga fokus qilindi';
+            setTimeout(() => {
+                document.getElementById('typingIndicator').textContent = '';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

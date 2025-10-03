@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Ro'yxati</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2575fc;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .search-box {
+            margin-bottom: 25px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+            outline: none;
+        }
+        
+        .barcode-list {
+            margin-top: 20px;
+        }
+        
+        .barcode-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #dc3545;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .barcode-item.completed {
+            border-left-color: #28a745;
+            background-color: #f8fff9;
+        }
+        
+        .barcode-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .barcode-info {
+            flex-grow: 1;
+        }
+        
+        .barcode-value {
+            font-weight: 700;
+            font-size: 20px;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        
+        .barcode-time {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .barcode-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .status-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .status-btn.not-completed {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-btn.completed {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .delete-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .nav-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.secondary {
+            background-color: #6c757d;
+        }
+        
+        .nav-btn.secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #2575fc;
+            background-color: white;
+            color: #2575fc;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .barcode-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .barcode-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Barcode Ro'yxati</h1>
+            <p>Barcha saqlangan barcode'lar va ularning ma'lumotlari</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {% if 'success' in message.tags %}✅{% endif %}
+                    {% if 'error' in message.tags %}❌{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ barcodes|length }}</div>
+                <div class="stat-label">Jami Barcode'lar</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="completedCount">
+                    {{ barcodes|length|default:0 }}
+                </div>
+                <div class="stat-label">Bajarilgan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="pendingCount">
+                    {{ barcodes|length|default:0 }}
+                </div>
+                <div class="stat-label">Bajarilmagan</div>
+            </div>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Hammasi</button>
+            <button class="filter-btn" data-filter="completed">Bajarilgan</button>
+            <button class="filter-btn" data-filter="pending">Bajarilmagan</button>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Barcode bo'yicha qidirish..." id="searchInput">
+        </div>
+        
+        <div class="barcode-list" id="barcodeList">
+            {% if barcodes %}
+                {% for barcode in barcodes %}
+                    <div class="barcode-item {% if barcode.status %}completed{% endif %}" 
+                         data-barcode="{{ barcode.value }}" 
+                         data-status="{% if barcode.status %}completed{% else %}pending{% endif %}">
+                        <div class="barcode-info">
+                            <div class="barcode-value">{{ barcode.value }}</div>
+                            <div class="barcode-time">
+                                🕒 {{ barcode.created_at|date:"Y-m-d H:i" }} da qo'shilgan
+                                {% if barcode.status and barcode.completed_at %}
+                                    <br>✅ {{ barcode.completed_at|date:"Y-m-d H:i" }} da bajarildi
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="barcode-actions">
+                            <form method="post" action="{% url 'toggle_barcode_status' barcode.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="status-btn {% if barcode.status %}completed{% else %}not-completed{% endif %}">
+                                    {% if barcode.status %}✅ Bajarilgan{% else %}❌ Bajarilmagan{% endif %}
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'delete_barcode' barcode.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('Haqiqatan ham bu barcode ni o\'chirmoqchimisiz?')">
+                                    🗑️ O'chirish
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>📭 Hali barcode'lar mavjud emas</h3>
+                    <p>Kassa sahifasiga o'ting va birinchi barcode'ni qo'shing</p>
+                    <a href="{% url 'kassa' %}" class="nav-btn" style="margin-top: 15px;">
+                        Kassa Sahifasiga O'tish
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="{% url 'kassa' %}" class="nav-btn">
+                💰 Kassa Sahifasi
+            </a>
+            <a href="{% url 'get_stats' %}" class="nav-btn secondary">
+                📈 Statistika
+            </a>
+            <a href="/admin/" class="nav-btn secondary">
+                ⚙️ Admin Panel
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const barcodeItems = document.querySelectorAll('.barcode-item');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const completedCount = document.getElementById('completedCount');
+            const pendingCount = document.getElementById('pendingCount');
+            
+            // Statistikani yangilash
+            function updateStats() {
+                let completed = 0;
+                let pending = 0;
+                
+                barcodeItems.forEach(item => {
+                    if (item.getAttribute('data-status') === 'completed') {
+                        completed++;
+                    } else {
+                        pending++;
+                    }
+                });
+                
+                completedCount.textContent = completed;
+                pendingCount.textContent = pending;
+            }
+            
+            // Qidiruv funksiyasi
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                
+                barcodeItems.forEach(item => {
+                    const barcodeValue = item.getAttribute('data-barcode').toLowerCase();
+                    const status = item.getAttribute('data-status');
+                    
+                    const matchesSearch = barcodeValue.includes(searchTerm);
+                    const matchesFilter = activeFilter === 'all' || 
+                                         (activeFilter === 'completed' && status === 'completed') ||
+                                         (activeFilter === 'pending' && status === 'pending');
+                    
+                    if (matchesSearch && matchesFilter) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Filtrlash funksiyasi
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Faqat bitta tugma faol bo'ladi
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    const searchTerm = searchInput.value.toLowerCase();
+                    
+                    barcodeItems.forEach(item => {
+                        const barcodeValue = item.getAttribute('data-barcode').toLowerCase();
+                        const status = item.getAttribute('data-status');
+                        
+                        const matchesSearch = barcodeValue.includes(searchTerm);
+                        const matchesFilter = filter === 'all' || 
+                                             (filter === 'completed' && status === 'completed') ||
+                                             (filter === 'pending' && status === 'pending');
+                        
+                        if (matchesSearch && matchesFilter) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Dastlabki statistikani yangilash
+            updateStats();
+        });
+    </script>
+</body>
+</html>
